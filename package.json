@@ -1,6 +1,9 @@
 {
 	"name": "websocket-text-relay-vscode",
+	"displayName": "Websocket Text Relay",
 	"description": "Websocket Text Relay extension for vscode",
+	"publisher": "niels4",
+	"icon": "wtr-icon.png",
 	"version": "1.0.0",
 	"engines": {
 		"vscode": "^1.74.0"
