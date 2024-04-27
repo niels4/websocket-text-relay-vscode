@@ -8,7 +8,7 @@ This repo contains just the vscode client. The server implementation can be foun
 
 ## Install Extension
 
-Search for "websocket-text-relay" in the vscode extension marketplace or checkout the repo and generate the vsix file yourself using [vsce](https://code.visualstudio.com/api/working-with-extensions/publishing-extension#vsce)
+Search for "niels4" in the vscode extension marketplace or checkout the repo and generate the vsix file yourself using [vsce](https://code.visualstudio.com/api/working-with-extensions/publishing-extension#vsce)
 
 ## Usage
 
