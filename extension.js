@@ -107,11 +107,62 @@ function activate(context) {
     }
   )
 
+  const enableCommand = vscode.commands.registerCommand(
+    "websocketTextRelay.enable",
+    () => {
+      vscode.workspace
+        .getConfiguration()
+        .update(
+          `${configPrefix}.${enabledProperty}`,
+          true,
+          vscode.ConfigurationTarget.Global
+        )
+      vscode.window.showInformationMessage("Websocket Text Relay enabled")
+    }
+  )
+
+  const disableCommand = vscode.commands.registerCommand(
+    "websocketTextRelay.disable",
+    () => {
+      vscode.workspace
+        .getConfiguration()
+        .update(
+          `${configPrefix}.${enabledProperty}`,
+          false,
+          vscode.ConfigurationTarget.Global
+        )
+      vscode.window.showInformationMessage("Websocket Text Relay disabled")
+    }
+  )
+
+  const toggleCommand = vscode.commands.registerCommand(
+    "websocketTextRelay.toggle",
+    () => {
+      const currentValue = vscode.workspace
+        .getConfiguration()
+        .get(`${configPrefix}.${enabledProperty}`)
+      const newValue = !currentValue
+      vscode.workspace
+        .getConfiguration()
+        .update(
+          `${configPrefix}.${enabledProperty}`,
+          newValue,
+          vscode.ConfigurationTarget.Global
+        )
+      vscode.window.showInformationMessage(
+        `Websocket Text Relay ${newValue ? "enabled" : "disabled"}`
+      )
+    }
+  )
+
   context.subscriptions.push(
     openDisposable,
     closeDisposable,
     onNotificationDisposable,
-    configChangeListener
+    configChangeListener,
+    enableCommand,
+    disableCommand,
+    toggleCommand
   )
 }
 

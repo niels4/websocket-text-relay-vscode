@@ -13,6 +13,20 @@
   ],
   "main": "./extension.js",
   "contributes": {
+    "commands": [
+      {
+        "command": "websocketTextRelay.enable",
+        "title": "Enable Websocket Text Relay"
+      },
+      {
+        "command": "websocketTextRelay.disable",
+        "title": "Disable Websocket Text Relay"
+      },
+      {
+        "command": "websocketTextRelay.toggle",
+        "title": "Toggle Websocket Text Relay"
+      }
+    ],
     "configuration": {
       "title": "Websocket Text Relay",
       "properties": {
