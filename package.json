@@ -16,15 +16,15 @@
     "commands": [
       {
         "command": "websocketTextRelay.enable",
-        "title": "Enable Websocket Text Relay"
+        "title": "Websocket Text Relay: Enable"
       },
       {
         "command": "websocketTextRelay.disable",
-        "title": "Disable Websocket Text Relay"
+        "title": "Websocket Text Relay: Disable"
       },
       {
         "command": "websocketTextRelay.toggle",
-        "title": "Toggle Websocket Text Relay"
+        "title": "Websocket Text Relay: Toggle "
       }
     ],
     "configuration": {

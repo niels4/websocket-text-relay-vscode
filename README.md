@@ -17,7 +17,34 @@ Verify the plugin is working by viewing the status UI hosted at [http://localhos
 After installation, continue with step 2 in the [websocket-text-relay README](https://github.com/niels4/websocket-text-relay)
 to connect your editor to a front end client and see your updates rendered as you type.
 
+### Disable / Enable / Toggle WebSocket Text Relay
+
+**Command:** `websocketTextRelay.<disable | enable | toggle>`
+
+**Description:** Disables / Enables / Toggles the WebSocket text relay functionality.
+
+1. Open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P`).
+2. Search for `Websocket Text Relay: <Disable | Enable | Toggle>`.
+3. Press `Enter`.
+
+### Keybindings
+
+For quicker access, you can add custom keybindings for these commands. Here is an example of how to set up keybindings in your `keybindings.json` file:
+
+```json
+[
+  {
+    "key": "ctrl+alt+w",
+    "command": "websocketTextRelay.toggle",
+    "when": "editorTextFocus"
+  }
+]
+
 ## settings
+
+### enabled
+
+This extension is enabled by default. You can disable text updates by setting `websocketTextRelay.enabled` setting to false.
 
 ### allowNetworkAccess
 
@@ -37,3 +64,4 @@ development and debugging the application using the chrome debugger. See the [de
 ## License
 
 websocket-text-relay-vscode is released under the [MIT License](LICENSE).
+```
