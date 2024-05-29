@@ -39,6 +39,7 @@ For quicker access, you can add custom keybindings for these commands. Here is a
     "when": "editorTextFocus"
   }
 ]
+```
 
 ## settings
 
@@ -64,4 +65,3 @@ development and debugging the application using the chrome debugger. See the [de
 ## License
 
 websocket-text-relay-vscode is released under the [MIT License](LICENSE).
-```
