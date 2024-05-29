@@ -1,74 +1,84 @@
 {
-	"name": "websocket-text-relay-vscode",
-	"displayName": "Websocket Text Relay",
-	"description": "Websocket Text Relay extension for vscode",
-	"publisher": "niels4",
-	"icon": "wtr-icon.png",
-	"version": "1.0.0",
-	"engines": {
-		"vscode": "^1.74.0"
-	},
-	"activationEvents": [
-		"*"
-	],
-	"main": "./extension.js",
-	"contributes": {
-		"configuration": {
-			"title": "Websocket Text Relay",
-			"properties": {
-				"websocketTextRelay.allowNetworkAccess": {
-					"type": "boolean",
-					"default": false,
-					"description": "Allow other computers on your local network to be able to connect to the websocket server. Defaults to false."
-				},
-				"websocketTextRelay.allowedHosts": {
-					"type": "array",
-					"default": [],
-					"description": "List of allowed hosts that can connect to the websocket server. Defaults to empty array, which will allow localhost only.",
-					"items": {
-						"type": "string"
-					}
-				},
-				"websocketTextRelay.developer.serverCommand": {
-					"type": "string",
-					"default": "",
-					"description": "Used for extension development and debugging only. Override command to launch language server. Leave blank to use default server installed by package."
-				},
-				"websocketTextRelay.developer.serverCommandArgs": {
-					"type": "array",
-					"default": [],
-					"description": "List of command args to use when overriding the server command. If serverCommand is blank, changing this property has no effect.",
-					"items": {
-						"type": "string"
-					}
-				}
-			}
-		}
-	},
-	"scripts": {
-		"lint": "eslint ."
-	},
-	"dependencies": {
-		"eslint": "^8.57.0",
-		"vscode-languageclient": "^9.0.1",
-		"websocket-text-relay": "^1.1.0"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+ssh://git@github.com/niels4/websocket-text-relay-vscode.git"
-	},
-	"keywords": [
-		"websocket",
-		"text",
-		"relay",
-		"live",
-		"coding",
-		"LSP"
-	],
-	"author": "Niels Nielsen",
-	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/niels4/websocket-text-relay-vscode/issues"
-	},
-	"homepage": "https://github.com/niels4/websocket-text-relay-vscode#readme"
+  "name": "websocket-text-relay-vscode",
+  "displayName": "Websocket Text Relay",
+  "description": "Websocket Text Relay extension for vscode",
+  "publisher": "niels4",
+  "icon": "wtr-icon.png",
+  "version": "1.0.0",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "Websocket Text Relay",
+      "properties": {
+        "websocketTextRelay.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Uncheck to disable sending any text updates.",
+          "order": 1
+        },
+        "websocketTextRelay.allowedHosts": {
+          "type": "array",
+          "default": [],
+          "description": "List of allowed hosts that can connect to the websocket server. Defaults to empty array, which will allow localhost only.",
+          "items": {
+            "type": "string"
+          },
+          "order": 2
+        },
+        "websocketTextRelay.allowNetworkAccess": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow other computers on your local network to be able to connect to the websocket server. Defaults to false.",
+          "order": 3
+        },
+        "websocketTextRelay.developer.serverCommand": {
+          "type": "string",
+          "default": "",
+          "description": "Used for extension development and debugging only. Override command to launch language server. Leave blank to use default server installed by package.",
+          "order": 4
+        },
+        "websocketTextRelay.developer.serverCommandArgs": {
+          "type": "array",
+          "default": [],
+          "description": "List of command args to use when overriding the server command. If serverCommand is blank, changing this property has no effect.",
+          "items": {
+            "type": "string"
+          },
+          "order": 5
+        }
+      }
+    }
+  },
+  "scripts": {
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "eslint": "^8.57.0",
+    "vscode-languageclient": "^9.0.1",
+    "websocket-text-relay": "^1.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/niels4/websocket-text-relay-vscode.git"
+  },
+  "keywords": [
+    "websocket",
+    "text",
+    "relay",
+    "live",
+    "coding",
+    "LSP"
+  ],
+  "author": "Niels Nielsen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/niels4/websocket-text-relay-vscode/issues"
+  },
+  "homepage": "https://github.com/niels4/websocket-text-relay-vscode#readme"
 }

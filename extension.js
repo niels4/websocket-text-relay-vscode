@@ -1,20 +1,22 @@
-const vscode = require('vscode')
+const vscode = require("vscode")
 const { LanguageClient } = require("vscode-languageclient/node")
 
 const registrationId = "websocket-text-relay"
+const configPrefix = "websocketTextRelay"
+const enabledProperty = "enabled"
 
 let client = null
 
 const docSelectorFromActiveFiles = (activeFiles) => {
   return activeFiles.map((file) => {
-    return { scheme: 'file', path: file }
+    return { scheme: "file", path: file }
   })
 }
 
 const updateRegistrations = (client, activeFiles) => {
   const registerOptions = {
     syncKind: 1,
-    documentSelector: docSelectorFromActiveFiles(activeFiles)
+    documentSelector: docSelectorFromActiveFiles(activeFiles),
   }
   const optionsWrapper = { id: registrationId, registerOptions }
   const feature = client.getFeature("textDocument/didChange")
@@ -28,16 +30,17 @@ const updateRegistrations = (client, activeFiles) => {
 function activate(context) {
   console.log(`${registrationId} extension is active.`)
 
-  const serverModule = context.asAbsolutePath('server.js')
-  const config = vscode.workspace.getConfiguration('websocketTextRelay')
-  const allowNetworkAccess = config.get('allowNetworkAccess')
-  const allowedHosts = config.get('allowedHosts')
+  const serverModule = context.asAbsolutePath("server.js")
+  const config = vscode.workspace.getConfiguration(configPrefix)
+  const allowNetworkAccess = config.get("allowNetworkAccess")
+  const allowedHosts = config.get("allowedHosts")
   const serverCommand = config.get("developer.serverCommand")
   const serverCommandArgs = config.get("developer.serverCommandArgs")
+  let enabled = config.get(enabledProperty)
 
   const serverOptions = {
     command: `node`,
-    args: [serverModule]
+    args: [serverModule],
   }
 
   if (serverCommand.length > 0) {
@@ -47,12 +50,12 @@ function activate(context) {
 
   let clientOptions = {
     synchronize: {
-      textDocumentSync: 1
+      textDocumentSync: 1,
     },
     initializationOptions: {
       allowNetworkAccess,
-      allowedHosts
-    }
+      allowedHosts,
+    },
   }
 
   client = new LanguageClient(
@@ -65,9 +68,14 @@ function activate(context) {
   client.start()
 
   const updateOpenFiles = () => {
+    if (!enabled) {
+      return
+    }
     const files = []
-    vscode.workspace.textDocuments.forEach(d => {
-      if (d.uri.scheme !== "file") { return }
+    vscode.workspace.textDocuments.forEach((d) => {
+      if (d.uri.scheme !== "file") {
+        return
+      }
       files.push(d.fileName)
     })
     client.sendNotification("wtr/update-open-files", { files })
@@ -76,19 +84,45 @@ function activate(context) {
   let openDisposable = vscode.workspace.onDidOpenTextDocument(updateOpenFiles)
   let closeDisposable = vscode.workspace.onDidCloseTextDocument(updateOpenFiles)
 
-  let onNotificationDisposable = client.onNotification("wtr/update-active-files", ({ files }) => {
-    updateRegistrations(client, files)
-  })
+  let onNotificationDisposable = client.onNotification(
+    "wtr/update-active-files",
+    ({ files }) => {
+      updateRegistrations(client, files)
+    }
+  )
 
-  context.subscriptions.push(openDisposable, closeDisposable, onNotificationDisposable)
+  // Subscribe to configuration changes
+  const configChangeListener = vscode.workspace.onDidChangeConfiguration(
+    (event) => {
+      if (event.affectsConfiguration(`${configPrefix}.${enabledProperty}`)) {
+        enabled = vscode.workspace
+          .getConfiguration()
+          .get(`${configPrefix}.${enabledProperty}`)
+        if (enabled) {
+          updateOpenFiles()
+        } else {
+          client.sendNotification("wtr/update-open-files", { files: [] })
+        }
+      }
+    }
+  )
+
+  context.subscriptions.push(
+    openDisposable,
+    closeDisposable,
+    onNotificationDisposable,
+    configChangeListener
+  )
 }
 
 function deactivate() {
-  if (!client) { return }
+  if (!client) {
+    return
+  }
   return client.stop()
 }
 
 module.exports = {
   activate,
-  deactivate
+  deactivate,
 }
