@@ -72,10 +72,14 @@
   "scripts": {
     "lint": "eslint ."
   },
+  "devDependencies": {
+    "@eslint/js": "^9.35.0",
+    "eslint": "^9.35.0",
+    "globals": "^16.3.0"
+  },
   "dependencies": {
-    "eslint": "^8.57.0",
     "vscode-languageclient": "^9.0.1",
-    "websocket-text-relay": "^1.1.0"
+    "websocket-text-relay": "^1.1.4"
   },
   "repository": {
     "type": "git",
