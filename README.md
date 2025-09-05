@@ -57,6 +57,10 @@ wish to allow network access you must set the `websocketTextRelay.allowNetworkAc
 By default, the http and websocket server will only accept connections where the hostname is `localhost`. If you wish
 to allow other hosts to connect to the websocket server, you must explicitly allow them using the `websocketTextRelay.allowedHosts` setting.
 
+### updatesPerSecond
+
+You can use the `websocketTextRelay.updatesPerSecond` option to override the default update rate of the LSP client.
+
 ### developer
 
 You can override the command used to start the language server using the `websocketTextRelay.developer.serverCommand` and `websocketTextRelay.developer.serverCommandArgs` settings. This is useful for local

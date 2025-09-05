@@ -4,7 +4,7 @@
   "description": "Websocket Text Relay extension for vscode",
   "publisher": "niels4",
   "icon": "wtr-icon.png",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "engines": {
     "vscode": "^1.74.0"
   },
@@ -51,11 +51,19 @@
           "description": "Allow other computers on your local network to be able to connect to the websocket server. Defaults to false.",
           "order": 3
         },
+        "websocketTextRelay.updatesPerSecond": {
+          "type": "number",
+          "default": 30,
+          "minimum": 0.2,
+          "maximum": 100,
+          "description": "How frequently vscode sends text updates to watchers.",
+          "order": 4
+        },
         "websocketTextRelay.developer.serverCommand": {
           "type": "string",
           "default": "",
           "description": "Used for extension development and debugging only. Override command to launch language server. Leave blank to use default server installed by package.",
-          "order": 4
+          "order": 5
         },
         "websocketTextRelay.developer.serverCommandArgs": {
           "type": "array",
@@ -64,13 +72,14 @@
           "items": {
             "type": "string"
           },
-          "order": 5
+          "order": 6
         }
       }
     }
   },
   "scripts": {
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "local-package": "vsce package"
   },
   "devDependencies": {
     "@eslint/js": "^9.35.0",

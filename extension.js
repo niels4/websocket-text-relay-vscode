@@ -1,9 +1,11 @@
 const vscode = require("vscode")
 const { LanguageClient } = require("vscode-languageclient/node")
+const { throttleSendNotification, setUpdatesPerSecond } = require("./util")
 
 const registrationId = "websocket-text-relay"
 const configPrefix = "websocketTextRelay"
 const enabledProperty = "enabled"
+const updatesPerSecondProperty = "updatesPerSecond"
 
 let client = null
 
@@ -15,7 +17,7 @@ const docSelectorFromActiveFiles = (activeFiles) => {
 
 const updateRegistrations = (client, activeFiles) => {
   const registerOptions = {
-    syncKind: 1,
+    syncKind: 0, // we'll handle sync updates manually
     documentSelector: docSelectorFromActiveFiles(activeFiles),
   }
   const optionsWrapper = { id: registrationId, registerOptions }
@@ -37,6 +39,7 @@ function activate(context) {
   const serverCommand = config.get("developer.serverCommand")
   const serverCommandArgs = config.get("developer.serverCommandArgs")
   let enabled = config.get(enabledProperty)
+  setUpdatesPerSecond(config.get(updatesPerSecondProperty))
 
   const serverOptions = {
     command: `node`,
@@ -91,6 +94,31 @@ function activate(context) {
     }
   )
 
+  // send our own text updates that don't get debounced by vscode
+  const throttledSendTextChangeNotification = throttleSendNotification(client)
+
+  const textChangeDisposable = vscode.workspace.onDidChangeTextDocument(
+    (event) => {
+      if (event.document.uri.scheme !== "file") {
+        return
+      }
+
+      const textChangeMessage = {
+        textDocument: {
+          uri: event.document.uri.toString(),
+          version: event.document.version,
+        },
+        contentChanges: [
+          {
+            text: event.document.getText(),
+          },
+        ],
+      }
+
+      throttledSendTextChangeNotification(textChangeMessage)
+    }
+  )
+
   // Subscribe to configuration changes
   const configChangeListener = vscode.workspace.onDidChangeConfiguration(
     (event) => {
@@ -103,6 +131,17 @@ function activate(context) {
         } else {
           client.sendNotification("wtr/update-open-files", { files: [] })
         }
+      }
+
+      if (
+        event.affectsConfiguration(
+          `${configPrefix}.${updatesPerSecondProperty}`
+        )
+      ) {
+        const updatesPerSecond = vscode.workspace
+          .getConfiguration()
+          .get(`${configPrefix}.${updatesPerSecondProperty}`)
+        setUpdatesPerSecond(updatesPerSecond)
       }
     }
   )
@@ -159,6 +198,7 @@ function activate(context) {
     openDisposable,
     closeDisposable,
     onNotificationDisposable,
+    textChangeDisposable,
     configChangeListener,
     enableCommand,
     disableCommand,
