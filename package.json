@@ -4,7 +4,7 @@
   "description": "Websocket Text Relay extension for vscode",
   "publisher": "niels4",
   "icon": "wtr-icon.png",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "engines": {
     "vscode": "^1.74.0"
   },
@@ -88,7 +88,7 @@
   },
   "dependencies": {
     "vscode-languageclient": "^9.0.1",
-    "websocket-text-relay": "^1.1.4"
+    "websocket-text-relay": "^1.1.6"
   },
   "repository": {
     "type": "git",
