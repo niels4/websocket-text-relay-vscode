@@ -51,7 +51,7 @@ function activate(context) {
     serverOptions.args = serverCommandArgs
   }
 
-  let clientOptions = {
+  const clientOptions = {
     synchronize: {
       textDocumentSync: 1,
     },
@@ -61,12 +61,7 @@ function activate(context) {
     },
   }
 
-  client = new LanguageClient(
-    registrationId,
-    registrationId,
-    serverOptions,
-    clientOptions
-  )
+  client = new LanguageClient(registrationId, registrationId, serverOptions, clientOptions)
 
   client.start()
 
@@ -84,115 +79,77 @@ function activate(context) {
     client.sendNotification("wtr/update-open-files", { files })
   }
 
-  let openDisposable = vscode.workspace.onDidOpenTextDocument(updateOpenFiles)
-  let closeDisposable = vscode.workspace.onDidCloseTextDocument(updateOpenFiles)
+  const openDisposable = vscode.workspace.onDidOpenTextDocument(updateOpenFiles)
+  const closeDisposable = vscode.workspace.onDidCloseTextDocument(updateOpenFiles)
 
-  let onNotificationDisposable = client.onNotification(
-    "wtr/update-active-files",
-    ({ files }) => {
-      updateRegistrations(client, files)
-    }
-  )
+  const onNotificationDisposable = client.onNotification("wtr/update-active-files", ({ files }) => {
+    updateRegistrations(client, files)
+  })
 
   // send our own text updates that don't get debounced by vscode
   const throttledSendTextChangeNotification = throttleSendNotification(client)
 
-  const textChangeDisposable = vscode.workspace.onDidChangeTextDocument(
-    (event) => {
-      if (event.document.uri.scheme !== "file") {
-        return
-      }
-
-      const textChangeMessage = {
-        textDocument: {
-          uri: event.document.uri.toString(),
-          version: event.document.version,
-        },
-        contentChanges: [
-          {
-            text: event.document.getText(),
-          },
-        ],
-      }
-
-      throttledSendTextChangeNotification(textChangeMessage)
+  const textChangeDisposable = vscode.workspace.onDidChangeTextDocument((event) => {
+    if (event.document.uri.scheme !== "file") {
+      return
     }
-  )
+
+    const textChangeMessage = {
+      textDocument: {
+        uri: event.document.uri.toString(),
+        version: event.document.version,
+      },
+      contentChanges: [
+        {
+          text: event.document.getText(),
+        },
+      ],
+    }
+
+    throttledSendTextChangeNotification(textChangeMessage)
+  })
 
   // Subscribe to configuration changes
-  const configChangeListener = vscode.workspace.onDidChangeConfiguration(
-    (event) => {
-      if (event.affectsConfiguration(`${configPrefix}.${enabledProperty}`)) {
-        enabled = vscode.workspace
-          .getConfiguration()
-          .get(`${configPrefix}.${enabledProperty}`)
-        if (enabled) {
-          updateOpenFiles()
-        } else {
-          client.sendNotification("wtr/update-open-files", { files: [] })
-        }
-      }
-
-      if (
-        event.affectsConfiguration(
-          `${configPrefix}.${updatesPerSecondProperty}`
-        )
-      ) {
-        const updatesPerSecond = vscode.workspace
-          .getConfiguration()
-          .get(`${configPrefix}.${updatesPerSecondProperty}`)
-        setUpdatesPerSecond(updatesPerSecond)
+  const configChangeListener = vscode.workspace.onDidChangeConfiguration((event) => {
+    if (event.affectsConfiguration(`${configPrefix}.${enabledProperty}`)) {
+      enabled = vscode.workspace.getConfiguration().get(`${configPrefix}.${enabledProperty}`)
+      if (enabled) {
+        updateOpenFiles()
+      } else {
+        client.sendNotification("wtr/update-open-files", { files: [] })
       }
     }
-  )
 
-  const enableCommand = vscode.commands.registerCommand(
-    "websocketTextRelay.enable",
-    () => {
-      vscode.workspace
+    if (event.affectsConfiguration(`${configPrefix}.${updatesPerSecondProperty}`)) {
+      const updatesPerSecond = vscode.workspace
         .getConfiguration()
-        .update(
-          `${configPrefix}.${enabledProperty}`,
-          true,
-          vscode.ConfigurationTarget.Global
-        )
-      vscode.window.showInformationMessage("Websocket Text Relay enabled")
+        .get(`${configPrefix}.${updatesPerSecondProperty}`)
+      setUpdatesPerSecond(updatesPerSecond)
     }
-  )
+  })
 
-  const disableCommand = vscode.commands.registerCommand(
-    "websocketTextRelay.disable",
-    () => {
-      vscode.workspace
-        .getConfiguration()
-        .update(
-          `${configPrefix}.${enabledProperty}`,
-          false,
-          vscode.ConfigurationTarget.Global
-        )
-      vscode.window.showInformationMessage("Websocket Text Relay disabled")
-    }
-  )
+  const enableCommand = vscode.commands.registerCommand("websocketTextRelay.enable", () => {
+    vscode.workspace
+      .getConfiguration()
+      .update(`${configPrefix}.${enabledProperty}`, true, vscode.ConfigurationTarget.Global)
+    vscode.window.showInformationMessage("Websocket Text Relay enabled")
+  })
 
-  const toggleCommand = vscode.commands.registerCommand(
-    "websocketTextRelay.toggle",
-    () => {
-      const currentValue = vscode.workspace
-        .getConfiguration()
-        .get(`${configPrefix}.${enabledProperty}`)
-      const newValue = !currentValue
-      vscode.workspace
-        .getConfiguration()
-        .update(
-          `${configPrefix}.${enabledProperty}`,
-          newValue,
-          vscode.ConfigurationTarget.Global
-        )
-      vscode.window.showInformationMessage(
-        `Websocket Text Relay ${newValue ? "enabled" : "disabled"}`
-      )
-    }
-  )
+  const disableCommand = vscode.commands.registerCommand("websocketTextRelay.disable", () => {
+    vscode.workspace
+      .getConfiguration()
+      .update(`${configPrefix}.${enabledProperty}`, false, vscode.ConfigurationTarget.Global)
+    vscode.window.showInformationMessage("Websocket Text Relay disabled")
+  })
+
+  const toggleCommand = vscode.commands.registerCommand("websocketTextRelay.toggle", () => {
+    const currentValue = vscode.workspace.getConfiguration().get(`${configPrefix}.${enabledProperty}`)
+    const newValue = !currentValue
+    vscode.workspace
+      .getConfiguration()
+      .update(`${configPrefix}.${enabledProperty}`, newValue, vscode.ConfigurationTarget.Global)
+    vscode.window.showInformationMessage(`Websocket Text Relay ${newValue ? "enabled" : "disabled"}`)
+  })
 
   context.subscriptions.push(
     openDisposable,
@@ -202,7 +159,7 @@ function activate(context) {
     configChangeListener,
     enableCommand,
     disableCommand,
-    toggleCommand
+    toggleCommand,
   )
 }
 
