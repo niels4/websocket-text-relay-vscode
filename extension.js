@@ -4,10 +4,23 @@ const { throttleSendNotification, setUpdatesPerSecond } = require("./util")
 
 const registrationId = "websocket-text-relay"
 const configPrefix = "websocketTextRelay"
-const enabledProperty = "enabled"
 const updatesPerSecondProperty = "updatesPerSecond"
 
 let client = null
+
+const updateOpenFiles = () => {
+  if (client == null) {
+    return
+  }
+  const files = []
+  vscode.workspace.textDocuments.forEach((d) => {
+    if (d.uri.scheme !== "file") {
+      return
+    }
+    files.push(d.fileName)
+  })
+  client.sendNotification("wtr/update-open-files", { files })
+}
 
 const docSelectorFromActiveFiles = (activeFiles) => {
   return activeFiles.map((file) => {
@@ -38,7 +51,6 @@ function activate(context) {
   const allowedHosts = config.get("allowedHosts")
   const serverCommand = config.get("developer.serverCommand")
   const serverCommandArgs = config.get("developer.serverCommandArgs")
-  let enabled = config.get(enabledProperty)
   setUpdatesPerSecond(config.get(updatesPerSecondProperty))
 
   const serverOptions = {
@@ -62,22 +74,6 @@ function activate(context) {
   }
 
   client = new LanguageClient(registrationId, registrationId, serverOptions, clientOptions)
-
-  client.start()
-
-  const updateOpenFiles = () => {
-    if (!enabled) {
-      return
-    }
-    const files = []
-    vscode.workspace.textDocuments.forEach((d) => {
-      if (d.uri.scheme !== "file") {
-        return
-      }
-      files.push(d.fileName)
-    })
-    client.sendNotification("wtr/update-open-files", { files })
-  }
 
   const openDisposable = vscode.workspace.onDidOpenTextDocument(updateOpenFiles)
   const closeDisposable = vscode.workspace.onDidCloseTextDocument(updateOpenFiles)
@@ -111,15 +107,6 @@ function activate(context) {
 
   // Subscribe to configuration changes
   const configChangeListener = vscode.workspace.onDidChangeConfiguration((event) => {
-    if (event.affectsConfiguration(`${configPrefix}.${enabledProperty}`)) {
-      enabled = vscode.workspace.getConfiguration().get(`${configPrefix}.${enabledProperty}`)
-      if (enabled) {
-        updateOpenFiles()
-      } else {
-        client.sendNotification("wtr/update-open-files", { files: [] })
-      }
-    }
-
     if (event.affectsConfiguration(`${configPrefix}.${updatesPerSecondProperty}`)) {
       const updatesPerSecond = vscode.workspace
         .getConfiguration()
@@ -128,27 +115,31 @@ function activate(context) {
     }
   })
 
-  const enableCommand = vscode.commands.registerCommand("websocketTextRelay.enable", () => {
-    vscode.workspace
-      .getConfiguration()
-      .update(`${configPrefix}.${enabledProperty}`, true, vscode.ConfigurationTarget.Global)
-    vscode.window.showInformationMessage("Websocket Text Relay enabled")
-  })
+  let clientEnabled = false
 
-  const disableCommand = vscode.commands.registerCommand("websocketTextRelay.disable", () => {
-    vscode.workspace
-      .getConfiguration()
-      .update(`${configPrefix}.${enabledProperty}`, false, vscode.ConfigurationTarget.Global)
+  const enableWtr = () => {
+    clientEnabled = true
+    client?.start()
+    updateOpenFiles()
+    vscode.window.showInformationMessage("Websocket Text Relay enabled")
+  }
+
+  const disableWtr = () => {
+    clientEnabled = false
+    client?.stop()
     vscode.window.showInformationMessage("Websocket Text Relay disabled")
-  })
+  }
+
+  const enableCommand = vscode.commands.registerCommand("websocketTextRelay.enable", enableWtr)
+
+  const disableCommand = vscode.commands.registerCommand("websocketTextRelay.disable", disableWtr)
 
   const toggleCommand = vscode.commands.registerCommand("websocketTextRelay.toggle", () => {
-    const currentValue = vscode.workspace.getConfiguration().get(`${configPrefix}.${enabledProperty}`)
-    const newValue = !currentValue
-    vscode.workspace
-      .getConfiguration()
-      .update(`${configPrefix}.${enabledProperty}`, newValue, vscode.ConfigurationTarget.Global)
-    vscode.window.showInformationMessage(`Websocket Text Relay ${newValue ? "enabled" : "disabled"}`)
+    if (clientEnabled) {
+      disableWtr()
+    } else {
+      enableWtr()
+    }
   })
 
   context.subscriptions.push(

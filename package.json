@@ -9,7 +9,8 @@
     "vscode": "^1.74.0"
   },
   "activationEvents": [
-    "*"
+    "onCommand:websocketTextRelay.enable",
+    "onCommand:websocketTextRelay.toggle"
   ],
   "main": "./extension.js",
   "contributes": {
@@ -30,12 +31,6 @@
     "configuration": {
       "title": "Websocket Text Relay",
       "properties": {
-        "websocketTextRelay.enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Uncheck to disable sending any text updates.",
-          "order": 1
-        },
         "websocketTextRelay.allowedHosts": {
           "type": "array",
           "default": [],
