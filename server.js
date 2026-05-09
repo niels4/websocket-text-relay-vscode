@@ -1,3 +1,3 @@
-import("websocket-text-relay").then(({startLanguageServer}) => {
+import("websocket-text-relay").then(({ startLanguageServer }) => {
   startLanguageServer()
 })
